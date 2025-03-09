@@ -1,11 +1,11 @@
-package Java;
+package code;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Table {
+public class ParsedTable {
     private Scanner sc;
 
     private Transaction[] table;
@@ -50,8 +50,8 @@ public class Table {
     }
 
     public static void main(String[] args) {
-        Table table = new Table();
-        table.makeTable("connect.txt");
+        ParsedTable table = new ParsedTable();
+        table.makeTable("data.txt");
         System.out.println(table);
     }
 }

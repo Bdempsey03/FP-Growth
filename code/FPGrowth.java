@@ -15,10 +15,12 @@ public class FPGrowth {
         tree.findSingletons(dataset); //scan DB to find support of singletons
         tree.sortTable(); //sort singletons
         tree.printTable();
+        tree.makeGlobalTree();
 
-        // Step 1: Scan DB
+        // Step 1: Scan DB DONE!
         
-        // Step 2: Sort items in decreasing order of frequency
+        // Step 2: Sort items in decreasing order of frequency DONE!
+
         // Step 3: Construct FP-tree
         // Step 4: Mine FP-tree
     }

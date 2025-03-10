@@ -62,6 +62,42 @@ public class Tree{
         public void sortTable(){
         treeTable.sort(Comparator.comparingInt(EntryTuple::getSupport).reversed());
         }
+
+        public void makeGlobalTree(){
+
+            /*
+            Need to progress down the table {a1,a2,...} starting with the first entry. As long as one transaction contains
+            the descending sequence {a1,a2,a3} we keep descending building the leftmost branch of the tree. If we reach a point
+            where no transaction contains the sequence {a1,a2,a3} we go back to the last common ancestor of {a1,a2,a3} and try
+            {a1,a2,a4} creating a new branch. We continue until we find a common ancestor. Stop when we reach the end of the table.
+            */
+            
+            //Start at root:
+            TreeNode currentNode = root; //item in root is NULL
+            TreeNode newNode;
+
+            newNode = new TreeNode(treeTable.get(0), currentNode, new ArrayList<TreeNode>());
+            //add first child to root
+            currentNode.addChild(newNode);
+            currentNode = newNode;
+            for(EntryTuple e: treeTable){
+
+                if(e.getItem()==treeTable.get(0).getItem())
+                    continue;//skip first element because dealt with above
+
+                newNode = new TreeNode(treeTable.get(0), currentNode, new ArrayList<TreeNode>());
+                //if the database contains a sequence of a1,a2,... we add the ai element to the branch
+                //otherwise return to common ancestor and make a new branch
+
+//TODO: work from here
+
+                // currentNode.addChild(newNode);
+                // currentNode = newNode;
+            }
+
+        }
+
+
         public void printTable(){
             int i= 0;
             for(EntryTuple e: treeTable){

@@ -3,6 +3,7 @@ package code;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class Tree{
@@ -59,10 +60,13 @@ public class Tree{
         }
 
         public void sortTable(){
-            treeTable.sort((a, b) -> { return (a.getSupport() > b.getSupport())?-1:1; });//sorts on item support in descending order
+        treeTable.sort(Comparator.comparingInt(EntryTuple::getSupport).reversed());
         }
         public void printTable(){
+            int i= 0;
             for(EntryTuple e: treeTable){
+                if(i++>1000)
+                    break;
                 System.out.println(e);
             }
         }

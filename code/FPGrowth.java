@@ -3,7 +3,7 @@ public class FPGrowth {
     public static void main(String[] args) {
         
         // Scan DB
-        FPGrowthAlgo("data.txt");
+        FPGrowthAlgo("retail.txt");
 
 
     }

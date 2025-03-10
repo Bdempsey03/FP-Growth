@@ -5,6 +5,10 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
+/*
+ * Scans the DB and parses out the transactions and their associated transaction ID
+ */
 public class ParsedTable {
     private Scanner sc;
 
@@ -12,7 +16,7 @@ public class ParsedTable {
     private int TiD;
     private ArrayList<Integer> itemset; //varying sizes
 
-    private void makeTable(String filename) {
+    public ParsedTable(String filename) {
         // Read the file and create the table
         File file = new File("Data\\" + filename);
         itemset = new ArrayList<Integer>();
@@ -40,18 +44,20 @@ public class ParsedTable {
         }
 
     }
+    public Transaction[] getTable(){
+        return table;
+    }
 
     public String toString() { //PRINTING IS VERRRRRY SLOW
         String tableString = "";
-        for (int i = 0; i < table.length; i++) {
-            tableString += table[i] + "\n";
+        for (Transaction table1 : table) {
+            tableString += table1 + "\n";
         }
         return tableString;
     }
-
-    public static void main(String[] args) {
-        ParsedTable table = new ParsedTable();
-        table.makeTable("data.txt");
-        System.out.println(table);
+    public void printTable() { //Better
+        for (Transaction table1 : table) {
+            System.out.println(table1);
+        }
     }
 }

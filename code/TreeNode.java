@@ -6,4 +6,8 @@ public class TreeNode {
     TreeNode parent;
     TreeNode[] children;
 
+    public TreeNode(boolean isRoot){
+        this.isRoot = isRoot;
+    }
+
 }

@@ -26,5 +26,11 @@ public class EntryTuple {
     public String toString(){
         return "(" + item + " " + support + ")";
     }
+    public EntryTuple getNext(){
+        return next;
+    }
+    public void setNext(EntryTuple next){
+        this.next = next;
+    }
     //HELLOOOOo
 }

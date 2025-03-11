@@ -14,8 +14,9 @@ public class FPGrowth {
         Tree tree = new Tree();
         tree.findSingletons(dataset); //scan DB to find support of singletons
         tree.sortTable(); //sort singletons
-        tree.printTable();
+        // tree.printTable();
         tree.makeGlobalTree(dataset);
+        tree.printLinkedLists();
 
         // Step 1: Scan DB DONE!
         

@@ -1,6 +1,5 @@
 package code;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class TreeNode {
@@ -35,6 +34,6 @@ public class TreeNode {
         this.parent = parent;
     }
     public String toString(){
-        return entry.toString();
+        return entry.toString() + "<" + (parent==null?"null":parent.getEntryTuple().getItem())+">";
     }
 }

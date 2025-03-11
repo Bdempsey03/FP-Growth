@@ -3,7 +3,7 @@ public class FPGrowth {
     public static void main(String[] args) {
         
         // Scan DB
-        FPGrowthAlgo("retail.txt");
+        FPGrowthAlgo("data.txt");
 
 
     }
@@ -15,7 +15,7 @@ public class FPGrowth {
         tree.findSingletons(dataset); //scan DB to find support of singletons
         tree.sortTable(); //sort singletons
         tree.printTable();
-        tree.makeGlobalTree();
+        tree.makeGlobalTree(dataset);
 
         // Step 1: Scan DB DONE!
         

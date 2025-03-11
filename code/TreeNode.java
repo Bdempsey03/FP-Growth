@@ -1,5 +1,6 @@
 package code;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class TreeNode {
@@ -10,6 +11,8 @@ public class TreeNode {
 
     public TreeNode(boolean isRoot){
         this.isRoot = isRoot;
+        this.entry = new EntryTuple(-1);
+        children = new ArrayList<TreeNode>();
     }
     public TreeNode(EntryTuple entry, TreeNode parent, ArrayList<TreeNode> children){
         this.entry = entry;
@@ -22,5 +25,16 @@ public class TreeNode {
     public EntryTuple getEntryTuple(){
         return entry;
     }
-
+    public ArrayList<TreeNode> getChildren(){
+        return children;
+    }
+    public TreeNode getParent(){
+        return parent;
+    }
+    public void setParent(TreeNode parent){
+        this.parent = parent;
+    }
+    public String toString(){
+        return entry.toString();
+    }
 }

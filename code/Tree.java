@@ -2,21 +2,29 @@ package code;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Tree {
     private TreeNode root;
     private ArrayList<TreeNode> nodesInTree; // bucket of all nodes in the tree
     private ArrayList<EntryTuple> treeTable; // This is the table associated with a tree
+    private ArrayList<TreeNode> projectedTree;
+    private ArrayList<EntryTuple> projectedTable;
+    private int minsup;
 
-    public Tree() {
+    private ArrayList<int[]> frequentItemsets = new ArrayList<int[]>();
+
+    public Tree(int minsup) {
         root = new TreeNode(true);
         treeTable = new ArrayList<EntryTuple>();
         nodesInTree = new ArrayList<TreeNode>();
         nodesInTree.add(root);
+        this.minsup = minsup;
     }
 
     public void findSingletons(String filename) {
@@ -66,6 +74,9 @@ public class Tree {
 
     public void sortTable() {
         treeTable.sort(Comparator.comparingInt(EntryTuple::getSupport).reversed());
+        while(treeTable.get(treeTable.size()-1).getSupport() < minsup){
+            treeTable.remove(treeTable.size()-1);
+        }
     }
 
     public void makeGlobalTree(String filename) {
@@ -73,7 +84,8 @@ public class Tree {
         /*
          * For all transactions in parsedTable insert all the items
          * 
-         * Start at root and check if any of root.getChildren() contain an item in the transaction.
+         * Start at root and check if any of root.getChildren() contain an item in the
+         * transaction.
          * If yes -> increment support and go down that path.
          * If no -> add a new branch with the remainder of the transaction.
          * 
@@ -86,13 +98,16 @@ public class Tree {
 
         // Read the file and create the table
         File file = new File("Data\\" + filename);
+        for(EntryTuple e : treeTable)
+            frequentItemsets.add(new int[]{e.getItem()});
+
         try {
             sc = new Scanner(file);
             Transaction t;
             ArrayList<Integer> itemset;
             sc.nextLine(); // Skip the first line since it just the transaction count
             while (sc.hasNextLine()) {
-                itemset = new ArrayList<Integer>(); //create a new empty itemset for next transaction
+                itemset = new ArrayList<Integer>(); // create a new empty itemset for next transaction
                 String line = sc.nextLine().trim();
                 String[] tokens = line.split("\\s+");
                 if (tokens.length < 2) { // This is just incase the file is formatted poorly
@@ -101,147 +116,204 @@ public class Tree {
                 for (int i = 2; i < tokens.length; i++) {// igore TiD and number of items
                     itemset.add(Integer.parseInt(tokens[i]));
                 }
+                ArrayList<Integer> singletons = new ArrayList<Integer>(); //Construct a list of just the integer singletons above minsup
+                
+                
+
+                for (EntryTuple e : treeTable) {
+                    singletons.add(e.getItem());
+                }
+                itemset.retainAll(singletons); //remove all items not in the singletons list from transaction before adding to tree
                 Collections.sort(itemset, new ItemComparator(treeTable));
                 t = new Transaction(Integer.parseInt(tokens[0]), itemset);
 
                 /* Build global tree */
 
-
-
                 /*
-                * Start at root and check if any of root.getChildren() contain an item in the transaction.
-                * If yes -> increment support and go down that path.
-                * If no -> add a new branch with the remainder of the transaction.
+                 * Start at root and check if any of root.getChildren() contain an item in the
+                 * transaction.
+                 * If yes -> increment support and go down that path.
+                 * If no -> add a new branch with the remainder of the transaction.
                  */
 
                 boolean found;
                 currentNode = root;
-                while(t.getItemset().size()>0){
+                while (t.getItemset().size() > 0) {
                     found = false;
-                    if(currentNode.getChildren().size()==0){//No children (true if root and tree is empty or if leaf node)
-                            while(t.getItemset().size()>0){ //if currentNode is a leaf node then we make a new branch with this whole remaining transaction
-                                currentNode.addChild(new TreeNode(new EntryTuple(t.getItemset().get(0), 1), currentNode, new ArrayList<TreeNode>()));
-                                //ADD POINTER
-                                addPointer(currentNode.getChildren().get(0), t.getItemset().get(0));
-                                //PTR ADDED
+                    if (currentNode.getChildren().size() == 0) {// No children (true if root and tree is empty or if
+                                                                // leaf node)
+                        while (t.getItemset().size() > 0) { // if currentNode is a leaf node then we make a new branch
+                                                            // with this whole remaining transaction
+                            currentNode.addChild(new TreeNode(new EntryTuple(t.getItemset().get(0), 1), currentNode,
+                                    new ArrayList<TreeNode>()));
+                            // ADD POINTER
+                            addPointer(currentNode.getChildren().get(0), t.getItemset().get(0));
+                            // PTR ADDED
 
-                                nodesInTree.add(currentNode.getChildren().get(0));
-                                t.getItemset().remove(0);//shrink itemset (TODO: REVISIT BECAUSE SLOW)
-                                currentNode = currentNode.getChildren().get(0);
+                            nodesInTree.add(currentNode.getChildren().get(0));
+                            t.getItemset().remove(0);// shrink itemset (TODO: REVISIT BECAUSE SLOW)
+                            currentNode = currentNode.getChildren().get(0);
                         }
                     }
-                    if(currentNode.getChildren().size()>0){
-                        
-                        for(int i = 0; i < currentNode.getChildren().size(); i++){
-                            
-                            if(!t.getItemset().isEmpty() && currentNode.getChildren().get(i).getEntryTuple().getItem() == t.getItemset().get(0)){//if the item is in the children of currentNode traverse that branch
-                                currentNode.getChildren().get(i).getEntryTuple().setSupport(currentNode.getChildren().get(i).getEntryTuple().getSupport()+1);
+                    if (currentNode.getChildren().size() > 0) {
+
+                        for (int i = 0; i < currentNode.getChildren().size(); i++) {
+
+                            if (!t.getItemset().isEmpty() && currentNode.getChildren().get(i).getEntryTuple()
+                                    .getItem() == t.getItemset().get(0)) {// if the item is in the children of
+                                                                          // currentNode traverse that branch
+                                currentNode.getChildren().get(i).getEntryTuple()
+                                        .setSupport(currentNode.getChildren().get(i).getEntryTuple().getSupport() + 1);
                                 currentNode = currentNode.getChildren().get(i);
-                                t.getItemset().remove(0);//shrink itemset (TODO: REVISIT BECAUSE SLOW)
-                                found=true;
+                                t.getItemset().remove(0);// shrink itemset (TODO: REVISIT BECAUSE SLOW)
+                                found = true;
                             }
                         }
-                        if(found==false){
-                            currentNode.addChild(new TreeNode(new EntryTuple(t.getItemset().get(0), 1), currentNode, new ArrayList<TreeNode>()));
-                            //ADD POINTER
-                            addPointer(currentNode.getChildren().get(currentNode.getChildren().size()-1), t.getItemset().get(0));
-                            //POINTER ADDED
-                            t.getItemset().remove(0);//shrink itemset (TODO: REVISIT BECAUSE SLOW)
+                        if (found == false) {
+                            currentNode.addChild(new TreeNode(new EntryTuple(t.getItemset().get(0), 1), currentNode,
+                                    new ArrayList<TreeNode>()));
+                            // ADD POINTER
+                            addPointer(currentNode.getChildren().get(currentNode.getChildren().size() - 1),
+                                    t.getItemset().get(0));
+                            // POINTER ADDED
+                            t.getItemset().remove(0);// shrink itemset (TODO: REVISIT BECAUSE SLOW)
                             // if(!currentNode.isRoot)
-                            //     currentNode.entry.setSupport(currentNode.entry.getSupport()+1);
-                            nodesInTree.add(currentNode.getChildren().get(currentNode.getChildren().size()-1));
-                            currentNode = currentNode.getChildren().get(currentNode.getChildren().size()-1);
+                            // currentNode.entry.setSupport(currentNode.entry.getSupport()+1);
+                            nodesInTree.add(currentNode.getChildren().get(currentNode.getChildren().size() - 1));
+                            currentNode = currentNode.getChildren().get(currentNode.getChildren().size() - 1);
                         }
 
                     }
 
-
-                    
                 }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        System.out.println(this.toStringFreq(1));
-        buildProjectedTree(4);
+        // System.out.println(this.toStringFreq(1));
     }
 
-    public void addPointer(TreeNode newNode, int item){
+    public void addPointer(TreeNode newNode, int item) {
         EntryTuple ptr;
         EntryTuple next;
-        
+
         ptr = getSingletonWithValueOf(item);
         next = ptr.getNext();
-        while(next!=null){
+        while (next != null) {
             ptr = next;
             next = ptr.getNext();
-        };
+        }
+        ;
         ptr.setNext(newNode.getEntryTuple());
 
     }
-
-    public void buildProjectedTree(int val){
-
-        ArrayList<TreeNode> projectedTree = new ArrayList<TreeNode>();
-        ArrayList<EntryTuple> projectedTable = new ArrayList<EntryTuple>();
-        EntryTuple start = getSingletonWithValueOf(val); //This is the table entry that we are going to project on
-        TreeNode firstNode = getNodeOfEntry(start); //First node in tree with this value
-
-        //Add all nodes in the path to the root to the projected tree
-
-        projectedTree.add(new TreeNode(new EntryTuple(firstNode.getParent().getEntryTuple().getItem(), firstNode.getEntryTuple().getSupport()), null, new ArrayList<TreeNode>())); //Add new leaf
-        projectedTable.add(projectedTree.get(0).getEntryTuple());
-        
-        System.out.println(projectedTable);
-
-        TreeNode currentNode = firstNode;
-        while(currentNode!=null){
-            
+    public void projectSubtrees() {
+        for (int i = treeTable.size()-1; i > 0; i--) {
+            frequentItemsets.addAll(buildProjectedTree(treeTable.get(i).getItem()));
         }
+
     }
 
-    public TreeNode getNodeOfEntry(EntryTuple e){
-        for(TreeNode n : nodesInTree){
-            System.out.println(n.getEntryTuple() + " == " + e + " " + (n.getEntryTuple().equals(e)));
-            if(n.getEntryTuple().equals(e))
-                return n;
+    public ArrayList<int[]> buildProjectedTree(int val) {
+
+        ArrayList<int[]> frequentItemsets = new ArrayList<int[]>();
+
+        boolean noRoot = true;
+        TreeNode projectedRoot;
+        projectedTree = new ArrayList<TreeNode>();
+        projectedTable = new ArrayList<EntryTuple>();
+
+
+        EntryTuple start = getSingletonWithValueOf(val); // This is the table entry that we are going to project on
+        TreeNode firstNode = getNodeOfEntry(start.getNext()); // First node in tree with this value
+        // Add all nodes in the path to the root to the projected tree
+
+
+
+        // GOOD UNTIL HERE
+
+        TreeNode currentNode = firstNode;
+        int sup = firstNode.getEntryTuple().getSupport();
+        while (start != null) {
+            while (currentNode != null) {
+                if (currentNode.getParent() == null && noRoot) {
+                    projectedRoot = new TreeNode(true);
+                    projectedTree.add(projectedRoot);
+                    noRoot = false;
+                    break;
+                } else {
+                    if (currentNode.getParent() == null) {
+                        break;
+                    }
+                }
+                if (!currentNode.getParent().isRoot) {
+                    projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(),
+                            sup), currentNode.getParent(),
+                            new ArrayList<TreeNode>()));
+                    projectedTable.add(projectedTree.get(projectedTree.size() - 1).getEntryTuple());
+                    currentNode = currentNode.getParent();
+                }else{
+                    projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(),
+                            0), currentNode.getParent(),
+                            new ArrayList<TreeNode>())); //Root support should always be zero
+                    projectedTable.add(projectedTree.get(projectedTree.size() - 1).getEntryTuple());
+                    currentNode = currentNode.getParent();
+                }
+            }
+            start = start.getNext();
+        if(start!=null)
+            currentNode = getNodeOfEntry(start);
+            // System.out.println(start + "!!");
+        }
+        System.out.println(projectedTable + ", "+val);
+        for(EntryTuple e : projectedTable){
+            if(e.getItem()!=-1)//skip root
+                frequentItemsets.add(new int[]{val, e.getItem()});
         }
         
+        return frequentItemsets;
+
+    }
+
+    public TreeNode getNodeOfEntry(EntryTuple e) {
+        for (TreeNode n : nodesInTree) {
+            if (n.getEntryTuple().equals(e))
+                return n;
+        }
+
         System.out.println("Cannot find node with entry: " + e);
         return null;
     }
 
-    public EntryTuple getSingletonWithValueOf(int val){
-        for(EntryTuple e : treeTable){
-            if(e.getItem()==val)
+    public EntryTuple getSingletonWithValueOf(int val) {
+        for (EntryTuple e : treeTable) {
+            if (e.getItem() == val)
                 return e;
         }
         return null;
     }
 
-    
-    public String toString(){
+    public String toString() {
         String tree = "";
         int ctr = 0;
-        for(TreeNode n : nodesInTree){
-            if(ctr++>1000)
+        for (TreeNode n : nodesInTree) {
+            if (ctr++ > 1000)
                 break;
             tree += n.toString() + ", ";
         }
-
 
         // return nodesInTree.toString();
         return tree;
     }
 
-    public String toStringFreq(int minsup){
+    public String toStringFreq(int minsup) {
         String tree = "";
         int ctr = 0;
         int numOfFreqItems = 0;
-        for(TreeNode n : nodesInTree){
-            if(ctr++>1000)
+        for (TreeNode n : nodesInTree) {
+            if (ctr++ > 1000)
                 break;
-            if(n.getEntryTuple().getSupport()>=minsup){
+            if (n.getEntryTuple().getSupport() >= minsup) {
                 tree += n.toString() + ", ";
                 numOfFreqItems++;
             }
@@ -249,7 +321,6 @@ public class Tree {
         }
         return tree + "\nNumber of nodes above minsup: " + numOfFreqItems;
     }
-
 
     public void printTable() {
         int i = 0;
@@ -267,19 +338,23 @@ public class Tree {
         }
 
     }
-    public void printLinkedLists(){
+
+    public void printLinkedLists() {
         boolean first = true;
         EntryTuple ptr;
-        for(EntryTuple e: treeTable){
-            first=true;
+        for (EntryTuple e : treeTable) {
+            first = true;
             ptr = e;
-            while(ptr!=null){
-                System.out.print(ptr + (first?"|":"")+ " -> ");
-                first=false;
+            while (ptr != null) {
+                System.out.print((first ? (ptr+"|") : (getNodeOfEntry(ptr)+"") + " -> "));
+                first = false;
                 ptr = ptr.getNext();
             }
-        System.out.println();
+            System.out.println();
+        }
     }
-}
+    public ArrayList<int[]> getFrequentItemsets(){
+        return frequentItemsets;
+    }
 
 }

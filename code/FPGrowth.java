@@ -26,6 +26,10 @@ public class FPGrowth {
 
         tree.projectSubtrees();
 
+        //Print all paths from leaves back to the root node.
+        tree.newPrintTree();
+        //tree.printTree();
+
         frequentItemsets = tree.getFrequentItemsets();
 
         

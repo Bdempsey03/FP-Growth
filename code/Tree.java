@@ -339,6 +339,50 @@ public class Tree {
 
     }
 
+    public void newPrintTree(){
+
+        ArrayList<TreeNode> path = new ArrayList<TreeNode>();
+        TreeNode current;
+        System.out.print("\nPrinting all paths from leaves to root: \n");
+        for(int i = 0; i < nodesInTree.size(); i++){
+            //skip root node
+            if(nodesInTree.get(i).isRoot){
+                continue;
+            }
+            // If a node is a leaf get the path though parents back to the root
+            if(nodesInTree.get(i).getChildren().isEmpty()) {
+                current = nodesInTree.get(i);
+                while (current.isRoot == false) {
+                    path.add(current);
+                    current = current.getParent();
+                }
+                path.add(root); // place root node as last noe in the path
+
+                for (int j = path.size() - 1; j >= 0; j--) {
+                    System.out.print(path.get(j).getStringNode()); //print path in order from root to leaf
+                }
+                path.clear(); //empty path
+                System.out.print("\n");
+            }
+        }
+
+        System.out.println("\n");
+
+
+
+        /*
+        System.out.println("\n New String Tree");
+        System.out.print(root.getStringNode());
+        for(int i = 0; i < root.getChildren().size(); i++){
+            System.out.print(root.getChildren().get(i).getStringNode());
+        }
+        System.out.println("\n");
+
+         */
+    }
+
+
+
     public void printLinkedLists() {
         boolean first = true;
         EntryTuple ptr;

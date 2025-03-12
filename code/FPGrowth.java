@@ -29,22 +29,22 @@ public class FPGrowth {
         frequentItemsets = tree.getFrequentItemsets();
 
         
-        for(int i = 0; i < frequentItemsets.size(); i++){
-            for(int j = 0; j < frequentItemsets.size(); j++){
-               if(frequentItemsets.get(i).length == frequentItemsets.get(j).length){
-                   if(frequentItemsets.get(i)[0] == frequentItemsets.get(j)[0]){
-                    if(frequentItemsets.get(i).length == 2)
-                       if(frequentItemsets.get(i)[1] == frequentItemsets.get(j)[1]){
-                           frequentItemsets.remove(i);
-                       }
-                   }
-               }
-            }
-        }
+        // for(int i = 0; i < frequentItemsets.size(); i++){
+        //     for(int j = 0; j < frequentItemsets.size(); j++){
+        //        if(frequentItemsets.get(i).length == frequentItemsets.get(j).length){
+        //            if(frequentItemsets.get(i)[0] == frequentItemsets.get(j)[0]){
+        //             if(frequentItemsets.get(i).length == 2)
+        //                if(frequentItemsets.get(i)[1] == frequentItemsets.get(j)[1]){
+        //                    frequentItemsets.remove(i);
+        //                }
+        //            }
+        //        }
+        //     }
+        // }
         for(int[] itemset : frequentItemsets){
             System.out.print("[");
             for(int item : itemset){
-                System.out.print( item + ", ");
+                System.out.print( item + " ");
             }
             System.out.println("]");
         }

@@ -12,17 +12,18 @@ public class ItemComparator implements Comparator<Integer>{
 
     @Override
     public int compare(Integer o1, Integer o2) {
-        int support1 = 0;
-        int support2 = 0;
-        for (EntryTuple e : table) {
-            if (e.getItem() == o1) {
-                support1 = e.getSupport();
+        int location1 = 0;
+        int location2 = 0;
+        for (int i = 0; i < table.size(); i++) {
+
+            if (table.get(i).getItem() == o1) {
+                location1 = i;
             }
-            if (e.getItem() == o2) {
-                support2 = e.getSupport();
+            if (table.get(i).getItem() == o2) {
+                location2 = i;
             }
         }
-        return support2 - support1;
+        return location1 - location2;
     }
     
 

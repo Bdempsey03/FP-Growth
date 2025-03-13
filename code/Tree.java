@@ -57,14 +57,14 @@ public class Tree {
 
     }
 
-    public void incrementSupport(int item) {
+    private void incrementSupport(int item) {
         for (int i = 0; i < treeTable.size(); i++) {
             if (treeTable.get(i).getItem() == item)
                 treeTable.get(i).setSupport(treeTable.get(i).getSupport() + 1);
         }
     }
 
-    public boolean tableContains(int item) {
+    private boolean tableContains(int item) {
         for (EntryTuple e : treeTable) {
             if (e.getItem() == item)
                 return true;
@@ -193,7 +193,7 @@ public class Tree {
         // System.out.println(this.toStringFreq(1));
     }
 
-    public void addPointer(TreeNode newNode, int item) {
+    private void addPointer(TreeNode newNode, int item) {
         EntryTuple ptr;
         EntryTuple next;
 
@@ -254,13 +254,13 @@ public class Tree {
                     currentNode = currentNode.getParent();
                 }else{
                     projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(),
-                            0), currentNode.getParent(),
+                            0), currentNode.getParent(), //TODO: I think this should be the same root as above
                             new ArrayList<TreeNode>())); //Root support should always be zero
                     projectedTable.add(projectedTree.get(projectedTree.size() - 1).getEntryTuple());
                     currentNode = currentNode.getParent();
                 }
             }
-            start = start.getNext();
+            start = start.getNext();//Move laterally
         if(start!=null)
             currentNode = getNodeOfEntry(start);
             // System.out.println(start + "!!");

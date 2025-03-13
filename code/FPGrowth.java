@@ -1,8 +1,6 @@
 package code;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class FPGrowth {
     public static void main(String[] args) {
@@ -21,6 +19,7 @@ public class FPGrowth {
         tree.findSingletons(dataset); //Step 1: scan DB to find support of singletons
         tree.sortTable(); //Step 2: sort singletons
         tree.printTable();
+        // tree.printTree();
         tree.makeGlobalTree(dataset); //Step 3: construct FP-tree
         tree.printLinkedLists();
 
@@ -29,18 +28,7 @@ public class FPGrowth {
         frequentItemsets = tree.getFrequentItemsets();
 
         
-        // for(int i = 0; i < frequentItemsets.size(); i++){
-        //     for(int j = 0; j < frequentItemsets.size(); j++){
-        //        if(frequentItemsets.get(i).length == frequentItemsets.get(j).length){
-        //            if(frequentItemsets.get(i)[0] == frequentItemsets.get(j)[0]){
-        //             if(frequentItemsets.get(i).length == 2)
-        //                if(frequentItemsets.get(i)[1] == frequentItemsets.get(j)[1]){
-        //                    frequentItemsets.remove(i);
-        //                }
-        //            }
-        //        }
-        //     }
-        // }
+// Need to iteratively call projectSubtrees() and getFrequentItemsets() until the tables associated 
         for(int[] itemset : frequentItemsets){
             System.out.print("[");
             for(int item : itemset){

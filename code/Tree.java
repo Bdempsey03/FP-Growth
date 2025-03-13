@@ -2,12 +2,10 @@ package code;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.security.KeyStore.Entry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Tree {
     private TreeNode root;
@@ -272,6 +270,14 @@ public class Tree {
                 frequentItemsets.add(new int[]{val, e.getItem()});
             }
         }
+        //TODO: Filter out all entries with sup < minsup
+
+        
+
+        //base 
+        // buildProjectedTree(projectedTable.get(projectedTable.size()-1).getItem()); //Recursion :(
+        // projectedTable.remove(projectedTable.size()-1);
+
         
         return frequentItemsets;
 

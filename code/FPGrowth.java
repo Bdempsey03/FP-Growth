@@ -6,7 +6,12 @@ public class FPGrowth {
     public static void main(String[] args) {
         
         // Scan DB
-        FPGrowthAlgo("data.txt");
+        FPGrowthAlgo(
+            "data"
+            // "retail"
+            // "t25i10d10k"
+            // "1k5L"
+            +".txt");
 
 
     }
@@ -18,12 +23,17 @@ public class FPGrowth {
         Tree tree = new Tree(1);
         tree.findSingletons(dataset); //Step 1: scan DB to find support of singletons
         tree.sortTable(); //Step 2: sort singletons
-        tree.printTable();
+        // tree.printTable();
         // tree.printTree();
         tree.makeGlobalTree(dataset); //Step 3: construct FP-tree
-        tree.printLinkedLists();
+        // tree.printLinkedLists();
 
-        tree.projectSubtrees();
+        try {
+            tree.projectSubtrees();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         //Print all paths from leaves back to the root node.
         tree.newPrintTree();

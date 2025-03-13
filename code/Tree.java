@@ -207,12 +207,12 @@ public class Tree {
     }
     public void projectSubtrees() {
         for (int i = treeTable.size()-1; i > 0; i--) {
-            frequentItemsets.addAll(buildProjectedTree(treeTable.get(i).getItem()));
+            frequentItemsets.addAll(buildProjectedTree(treeTable, nodesInTree, treeTable.get(i).getItem()));
         }
 
     }
 
-    public ArrayList<int[]> buildProjectedTree(int val) {
+    public ArrayList<int[]> buildProjectedTree(ArrayList<EntryTuple> prevTable, ArrayList<TreeNode> prevTree, int val) {
 
         ArrayList<int[]> frequentItemsets = new ArrayList<int[]>();
 
@@ -223,7 +223,7 @@ public class Tree {
 
 
         EntryTuple start = getSingletonWithValueOf(val); // This is the table entry that we are going to project on
-        TreeNode firstNode = getNodeOfEntry(start.getNext()); // First node in tree with this value
+        TreeNode firstNode = getNodeOfEntry(prevTree, start.getNext()); // First node in tree with this value
         // Add all nodes in the path to the root to the projected tree
 
 
@@ -231,8 +231,17 @@ public class Tree {
         // GOOD UNTIL HERE
 
         TreeNode currentNode = firstNode;
+        // System.out.println(currentNode+"!!!");
         int sup = firstNode.getEntryTuple().getSupport();
+
         while (start != null) {
+            // if(start!=null)
+
+            // currentNode = getNodeOfEntry(prevTree, start.getNext());
+
+            // System.out.println("This is the current node and the next one in the list:"+ currentNode + start);
+
+            
             while (currentNode != null) {
                 if (currentNode.getParent() == null && noRoot) {
                     projectedRoot = new TreeNode(true);
@@ -259,11 +268,13 @@ public class Tree {
                 }
             }
             start = start.getNext();//Move laterally
-        if(start!=null)
-            currentNode = getNodeOfEntry(start);
+            if(start!=null)
+                currentNode = getNodeOfEntry(prevTree, start.getNext());
+        // if(start!=null)
+        //     currentNode = getNodeOfEntry(prevTree, start);
             // System.out.println(start + "!!");
         }
-        System.out.println(projectedTable + ", "+val);
+        // System.out.println(projectedTable + ", "+val);
         for(EntryTuple e : projectedTable){
             if(e.getItem()!=-1){//skip root
                 // System.out.println(val+","+e.getItem() + "!");
@@ -283,13 +294,15 @@ public class Tree {
 
     }
 
-    public TreeNode getNodeOfEntry(EntryTuple e) {
+    public TreeNode getNodeOfEntry(ArrayList<TreeNode> nodesInTree, EntryTuple e) {
         for (TreeNode n : nodesInTree) {
-            if (n.getEntryTuple().equals(e))
+            if (n.getEntryTuple().equals(e)){
                 return n;
+            }
         }
 
-        System.out.println("Cannot find node with entry: " + e);
+        // System.out.println("Cannot find node with entry: " + e +"\n");
+        // new Exception().printStackTrace();
         return null;
     }
 
@@ -398,7 +411,7 @@ public class Tree {
             first = true;
             ptr = e;
             while (ptr != null) {
-                System.out.print((first ? (ptr+"|") : (getNodeOfEntry(ptr)+"") + " -> "));
+                System.out.print((first ? (ptr+"|") : (getNodeOfEntry(nodesInTree,ptr)+"") + " -> "));
                 first = false;
                 ptr = ptr.getNext();
             }

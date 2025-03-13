@@ -267,8 +267,10 @@ public class Tree {
         }
         System.out.println(projectedTable + ", "+val);
         for(EntryTuple e : projectedTable){
-            if(e.getItem()!=-1)//skip root
+            if(e.getItem()!=-1){//skip root
+                // System.out.println(val+","+e.getItem() + "!");
                 frequentItemsets.add(new int[]{val, e.getItem()});
+            }
         }
         
         return frequentItemsets;

@@ -36,4 +36,12 @@ public class TreeNode {
     public String toString(){
         return entry.toString() + "<" + (parent==null?"null":parent.getEntryTuple().getItem())+">";
     }
+
+
+    public String getStringNode(){
+        if(isRoot == true){
+            return ("[" + "root" + "]");
+        }
+        return ("[" + entry.getItem() + ":" + entry.getSupport() + "]");
+    }
 }

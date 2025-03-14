@@ -205,12 +205,36 @@ public class Tree {
         ptr.setNext(newNode.getEntryTuple());
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
     public void projectSubtrees() {
         for (int i = treeTable.size()-1; i > 0; i--) {
             frequentItemsets.addAll(buildProjectedTree(treeTable, nodesInTree, treeTable.get(i).getItem()));
         }
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public ArrayList<int[]> buildProjectedTree(ArrayList<EntryTuple> prevTable, ArrayList<TreeNode> prevTree, int val) {
 
@@ -293,6 +317,20 @@ public class Tree {
         return frequentItemsets;
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public TreeNode getNodeOfEntry(ArrayList<TreeNode> nodesInTree, EntryTuple e) {
         for (TreeNode n : nodesInTree) {

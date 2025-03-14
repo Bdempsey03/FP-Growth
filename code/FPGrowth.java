@@ -1,22 +1,39 @@
 package code;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class FPGrowth {
     public static void main(String[] args) {
-        
-        // Scan DB
-        FPGrowthAlgo(
-            "data"
-            // "retail"
-            // "t25i10d10k"
-            // "1k5L"
-            +".txt");
+        float startTime = System.nanoTime();
+        float endTime;
+        float elapsed;
 
+        if (args.length < 2) {
+            System.out.println("Usage: java FPGrowth <file_path> <min_support>");
+            return;
+        }
+        String dataset = args[0];
+        String minsup = args[1];
+        
+        File file = new File("Data/"+dataset);
+        try(Scanner sc = new Scanner(file)) {
+            Double numTransactions = Double.parseDouble(sc.nextLine());
+            double minSupport = (Double.parseDouble(args[1])/100) * numTransactions; 
+            FPGrowthAlgo(dataset, minSupport);
+        } catch (IOException e) {
+            System.out.println("Error reading the file: " + e.getMessage());
+        }
+        
+        endTime = System.nanoTime();
+        elapsed = endTime - startTime;
+        System.out.println(elapsed/1000000000);
 
     }
 
-    public static void FPGrowthAlgo(String dataset){
+    public static void FPGrowthAlgo(String dataset, double minSupport){
         ArrayList<int[]> frequentItemsets = new ArrayList<int[]>();
         Tree tree = new Tree(1);
         tree.findSingletons(dataset); //Step 1: scan DB to find support of singletons

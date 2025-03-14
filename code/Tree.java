@@ -17,6 +17,9 @@ public class Tree {
 
     private ArrayList<int[]> frequentItemsets = new ArrayList<int[]>(); //this is constantly added to
 
+    public Tree(){
+        
+    }
     public Tree(int minsup) {
         //init variables
         root = new TreeNode(true);

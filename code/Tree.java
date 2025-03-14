@@ -16,11 +16,12 @@ public class Tree {
     private int minsup; //set by user
 
     private ArrayList<int[]> frequentItemsets = new ArrayList<int[]>(); //this is constantly added to
+    private ArrayList<int[]> fPatterns = new ArrayList<>();
 
     public Tree(int minsup) {
         //init variables
         root = new TreeNode(true);
-        treeTable = new ArrayList<EntryTuple>(); 
+        treeTable = new ArrayList<EntryTuple>();
         nodesInTree = new ArrayList<TreeNode>();
         nodesInTree.add(root);//add root to tree's nodes
         this.minsup = minsup;
@@ -46,7 +47,7 @@ public class Tree {
 
                 for (int i = 2; i < tokens.length; i++) {// ignore TiD and number of items
 
-                    
+
                     if (!tableContains(Integer.parseInt(tokens[i]))) {
                         //if the tree table does not already have this token then we need to add it
                         treeTable.add(new EntryTuple(Integer.parseInt(tokens[i]), 1));
@@ -70,6 +71,10 @@ public class Tree {
             if (treeTable.get(i).getItem() == item)
                 treeTable.get(i).setSupport(treeTable.get(i).getSupport() + 1);
         }
+    }
+
+    public ArrayList<int[]> getfPatterns(){
+        return fPatterns;
     }
 
     /*
@@ -97,17 +102,17 @@ public class Tree {
 
     /**
      * Parses a file and constructs a global m-way FP tree.
-     * 
+     *
      * For every transaction t in the transaction DB we sort the transaction in order of most frequent singletons,
-     * next we construct the tree from the root downwards. 
+     * next we construct the tree from the root downwards.
      * First, we add the first element of t1 as the child of the root,
      * next we add the second element of t1 as the child of the first,
      * repeat until t1 is added.
-     * 
+     *
      * Next, if t2's first element is the same as t1 we follow down that branch increasing the support
-     * until we find an element that was NOT in t1. Now we split into a new branch inserting t2. Repeat for 
+     * until we find an element that was NOT in t1. Now we split into a new branch inserting t2. Repeat for
      * t3, and t4, ...
-     * 
+     *
      * @param filename
      */
     public void makeGlobalTree(String filename) {
@@ -137,8 +142,8 @@ public class Tree {
                     itemset.add(Integer.parseInt(tokens[i]));
                 }
                 ArrayList<Integer> singletons = new ArrayList<Integer>(); //Construct a list of just the integer singletons above minsup
-                
-                
+
+
 
                 for (EntryTuple e : treeTable) {
                     singletons.add(e.getItem());
@@ -213,7 +218,7 @@ public class Tree {
 
     /*
      * Helper method that adds the appropriate pointer to a node in a tree.
-     * 
+     *
      * INNEFFICIENT :(
      */
     private void addPointer(TreeNode newNode, int item) {
@@ -232,23 +237,278 @@ public class Tree {
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
     /*
      * This method SHOULD iterate through all subtrees and subtrees of subtrees but it current just creates
      * the x-projected trees for the singletons in the DB
      */
->>>>>>> 1cab571d101b911c15818a7537c64e0e190e7251
+
     public void projectSubtrees() {
         for (int i = treeTable.size()-1; i > 0; i--) {
-            frequentItemsets.addAll(buildProjectedTree(treeTable, nodesInTree, treeTable.get(i).getItem()));
+
+            System.out.println("Tree Table: " + treeTable.get(i));
+
+            ArrayList<int[]> foundPatterns = (getProjectedPatterns(treeTable, nodesInTree, treeTable.get(i).getItem()));
+            for(int j = 0; j < foundPatterns.size(); j++){
+
+                if (frequentItemsets.contains(foundPatterns.get(j))){
+                   frequentItemsets.add(foundPatterns.get(j)); // Add a newly found pattern if it's not already in frequentItemsets
+                }
+            }
+
+
+
         }
 
     }
 
 
+    private TreeNode combineNodes(TreeNode n1, TreeNode n2){
+
+        if(n1 == null){
+            return n2;
+        }
+
+        if(n2 == null){
+            return n1;
+        }
+
+        EntryTuple tup1 = n1.getEntryTuple();
+        EntryTuple tup2 = n2.getEntryTuple();
+        EntryTuple ctup = new EntryTuple(tup1.getItem(), (tup1.getSupport() + tup2.getSupport()) ); //tuples should have the same item; sum support
+
+        ArrayList<TreeNode> children1 = n1.getChildren();
+        ArrayList<TreeNode> children2 = n2.getChildren();
+        children1.addAll(children2); //combine bot sets of children
+        //Should only combine nodes that have the same parent
+        TreeNode cNode = new TreeNode(ctup, n1.getParent(),children1);
+
+        return cNode;
+    }
+
+
+    
+    private ArrayList<TreeNode> mergePaths(ArrayList<ArrayList<TreeNode>> paths){
+
+        ArrayList<TreeNode> mergedPaths = new ArrayList<>();
+
+        TreeNode combinedRoot = null;
+        for(ArrayList<TreeNode> t: paths){
+            TreeNode pRoot = t.get(t.size()-1); //Last element in the path will be the root.
+            t.remove(pRoot);
+            mergedPaths.addAll(t);
+            combinedRoot = combineNodes(combinedRoot, pRoot);
+        }
+
+        mergedPaths.add(combinedRoot); //Add one root node to the merged paths.
+
+        ArrayList<TreeNode> rootKids = combinedRoot.getChildren();
+        for(int i = 0; i < rootKids.size(); i++){
+            for(int j = 0; j < rootKids.size(); j++){
+                if(rootKids.get(i).getEntryTuple().getItem() == rootKids.get(j).getEntryTuple().getItem() && i != j){
+                    //I don't think combine method modifies in place so manually need to remove and add new node. I could be wrong though.
+                    TreeNode combined = combineNodes(rootKids.get(i), rootKids.get(j));
+                    mergedPaths.remove(rootKids.get(i));
+                    mergedPaths.remove(rootKids.get(j));
+                    mergedPaths.add(combined);// put combined in the merged list
+                    //TODO Merges Are possible between children of merged nodes. Need to add those.
+                }
+            }
+        }
+
+
+
+        return mergedPaths;
+    }
+
+
+
+
+    public ArrayList<TreeNode> buildPTreeFromPaths(ArrayList<TreeNode> tree, TreeNode pNode) {
+        ArrayList<TreeNode> path = new ArrayList<TreeNode>();
+        ArrayList<TreeNode> pTree = new ArrayList<>();
+        ArrayList<ArrayList<TreeNode>> pathList = new ArrayList<>();
+
+        TreeNode current;
+
+
+        for (int i = 0; i < tree.size(); i++) {
+            //skip root node
+            if (tree.get(i).getParent() == null) {
+                continue;
+            }
+            // If a node is a leaf get the path though parents back to the root
+            if (tree.get(i).getChildren().isEmpty()) {
+                current = tree.get(i);
+                while (current.getParent() != null) {
+                    path.add(current);
+                    current = current.getParent();
+                }
+                path.add(current); // place root node as last node in the path
+                pathList.add(path);//add full path to the pathList
+                path.clear(); //empty path
+            }
+        }
+
+
+        // For each path in the list
+        for(int i = 0; i < pathList.size(); i++){
+            if(pathList.get(i).contains(pNode) == false){
+                pathList.remove(pathList.get(i)); //remove paths that do not contain the item being projected.
+            }
+
+            current = pathList.get(i).get(0); //Get the leaf node of the path
+
+
+            while(current.getParent() != null){
+                //Set the support of each element between the leaf and the root to the value of the support value of the leaf
+                current.getParent().getEntryTuple().setSupport(current.getEntryTuple().getSupport());
+                current = current.getParent();
+            }
+
+            pTree = mergePaths(pathList);
+
+        }
+
+        return pTree;
+    }
+
+    public ArrayList<ArrayList<TreeNode>> buildPTree(ArrayList<TreeNode> tree, TreeNode pNode){
+
+        ArrayList<TreeNode> path = new ArrayList<TreeNode>();
+        ArrayList <ArrayList<TreeNode>> pathList = new ArrayList<>();
+
+        TreeNode current;
+
+        for(int i = 0; i < tree.size(); i++){
+            //skip root node
+            if(tree.get(i).getParent() == null){
+                continue;
+            }
+            // If a node is a leaf get the path though parents back to the root
+            if(tree.get(i).getChildren().isEmpty()) {
+                current = tree.get(i);
+                while (current.getParent() != null) {
+                    path.add(current);
+                    current = current.getParent();
+                }
+                path.add(current); // place root node as last node in the path
+
+                pathList.add(path);
+                path.clear(); //empty path
+            }
+        }
+
+        return pathList;
+    }
+
+
+
+    public ArrayList<int[]> getProjectedPatterns(ArrayList<EntryTuple> prevTable, ArrayList<TreeNode> prevTree, int val){
+
+        ArrayList<int[]> projectedPatterns = new ArrayList<int[]>();
+
+        boolean noRoot = true;
+        TreeNode projectedRoot;
+        projectedTree = new ArrayList<TreeNode>();
+        projectedTable = new ArrayList<EntryTuple>();
+
+        EntryTuple start = getSingletonWithValueOf(val); // This is the table entry that we are going to project on
+
+        TreeNode firstNode = getNodeOfEntry(prevTree, start.getNext()); // First node in tree with a value that matches the side table
+
+        // Add all nodes in the path to the root to the projected tree
+
+        TreeNode currentNode = firstNode;
+
+        int sup = firstNode.getEntryTuple().getSupport(); // The support of all nodes between this node and the root are the same as this one
+        start = start.getNext();
+
+
+        while (start != null) {//This loop goes "laterally" from one node to its NEXT POINTER.
+
+            while (currentNode != null) {//This loops traverses UP a tree branch and stops when we reach the root
+
+
+                if (currentNode.getParent() == null && noRoot) {//If this projected tree doesn't have a root and we have reached the top we add a root
+                    projectedRoot = new TreeNode(true);
+                    projectedTree.add(projectedRoot);
+                    noRoot = false;
+                    break;
+                } else {
+                    if (currentNode.getParent() == null) {//if there is a root and weve reached the parent being NULL then we have reached the top
+                        break;
+                    }
+                }
+
+
+                if (!currentNode.getParent().isRoot) {//if we arent in the root then we add the current node and continue upwards
+                    //add a new node with the value of the parent and the support of the firstNode
+                    projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(), sup), currentNode.getParent().getParent(), new ArrayList<TreeNode>()));
+                    projectedTable.add(projectedTree.get(projectedTree.size() - 1).getEntryTuple());
+                    currentNode = currentNode.getParent();
+                }
+                else{
+
+                    // I think this was leading to multiple root nodes in the tree. First if-block should add the root -Rohan
+                    /*
+                    //The parent is the root
+                    projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(), 0), currentNode.getParent(), //TODO: I think this should be the same root as above
+                            new ArrayList<TreeNode>())); //Root support should always be zero
+                    projectedTable.add(projectedTree.get(projectedTree.size() - 1).getEntryTuple());
+
+                     */
+
+                    currentNode = currentNode.getParent();
+
+                }
+            }
+            start = start.getNext();//Move laterally
+            if(start!=null)
+                currentNode = getNodeOfEntry(prevTree, start);
+
+            System.out.println("Tree: " + projectedTree);
+            System.out.println("Table: " + projectedTable);
+            printPTree(projectedTree);
+
+        }
+
+
+
+
+
+
+
+        return projectedPatterns;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*
-     * THis method makes the projected subtrees from a tree (arraylist of nodes) and a tree table with a value to project (val)
+     * This method makes the projected subtrees from a tree (arraylist of nodes) and a tree table with a value to project (val)
      */
->>>>>>> 1cab571d101b911c15818a7537c64e0e190e7251
+
+    /*
     public ArrayList<int[]> buildProjectedTree(ArrayList<EntryTuple> prevTable, ArrayList<TreeNode> prevTree, int val) {
 
         ArrayList<int[]> frequentItemsets = new ArrayList<int[]>();
@@ -266,14 +526,14 @@ public class Tree {
 
         TreeNode currentNode = firstNode;//rename to a more useful name
 
-        /*TODO:
-         * This assumption is not true if the projected tree has branches that join higher up. Need to revisit!
-         */
-        int sup = firstNode.getEntryTuple().getSupport();//the support of all nodes between this node and the root are the same as this one 
+        //TODO:
+        //This assumption is not true if the projected tree has branches that join higher up. Need to revisit!
+
+        int sup = firstNode.getEntryTuple().getSupport();//the support of all nodes between this node and the root are the same as this one
         start=start.getNext();
 
-        while (start != null) {//This loop goes "laterally" from one node to its NEXT POINTER. 
-            
+        while (start != null) {//This loop goes "laterally" from one node to its NEXT POINTER.
+
             while (currentNode != null) {//THis loops traverses UP a tree branch and stops when we reach the root
                 if (currentNode.getParent() == null && noRoot) {//If this projected tree doesnt have a root and we have reached the top we add a root
                     projectedRoot = new TreeNode(true);
@@ -317,12 +577,24 @@ public class Tree {
         return frequentItemsets;
 
     }
+ */
+
+
+
+
+
+
+
+
+
+
+
 
 
     /*
      * Helper method to find the node in the tree
      */
->>>>>>> 1cab571d101b911c15818a7537c64e0e190e7251
+
     public TreeNode getNodeOfEntry(ArrayList<TreeNode> nodesInTree, EntryTuple e) {
         for (TreeNode n : nodesInTree) {
             if (n.getEntryTuple().equals(e)){
@@ -390,6 +662,39 @@ public class Tree {
 
     }
 
+    public void printPTree(ArrayList<TreeNode> nodes){
+
+        ArrayList<TreeNode> path = new ArrayList<TreeNode>();
+        TreeNode current;
+        TreeNode projRoot;
+        System.out.print("\nPrinting all paths from leaves to root in a P-Tree: \n");
+        for(int i = 0; i < nodes.size(); i++){
+            //skip root node
+            if(nodes.get(i).getParent() == null){
+                continue;
+            }
+            // If a node is a leaf get the path though parents back to the root
+            if(nodes.get(i).getChildren().isEmpty()) {
+                current = nodes.get(i);
+                while (current.getParent() != null) {
+                    path.add(current);
+                    current = current.getParent();
+                }
+                path.add(current); // place root node as last node in the path
+
+                for (int j = path.size() - 1; j >= 0; j--) {
+                    System.out.print(path.get(j).getStringNode()); //print path in order from root to leaf
+                }
+                path.clear(); //empty path
+                System.out.print("\n");
+            }
+        }
+
+        System.out.println("\n");
+
+
+    }
+
     public void newPrintTree(){
 
         ArrayList<TreeNode> path = new ArrayList<TreeNode>();
@@ -418,18 +723,6 @@ public class Tree {
         }
 
         System.out.println("\n");
-
-
-
-        /*
-        System.out.println("\n New String Tree");
-        System.out.print(root.getStringNode());
-        for(int i = 0; i < root.getChildren().size(); i++){
-            System.out.print(root.getChildren().get(i).getStringNode());
-        }
-        System.out.println("\n");
-
-         */
     }
 
 

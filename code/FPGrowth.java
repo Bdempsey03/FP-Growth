@@ -39,16 +39,18 @@ public class FPGrowth {
 
         frequentItemsets = tree.getFrequentItemsets();
 
+
+
         
 // Need to iteratively call projectSubtrees() and getFrequentItemsets() until the tables associated 
 
-        // for(int[] itemset : frequentItemsets){
-        //     System.out.print("[");
-        //     for(int item : itemset){
-        //         System.out.print( item + " ");
-        //     }
-        //     System.out.println("]");
-        // }
+         for(int[] itemset : frequentItemsets){
+             System.out.print("[");
+             for(int item : itemset){
+                 System.out.print( item + " ");
+             }
+             System.out.println("]");
+         }
 
         // Step 1: Scan DB DONE!
         

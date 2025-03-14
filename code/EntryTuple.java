@@ -32,5 +32,12 @@ public class EntryTuple {
     public void setNext(EntryTuple next){
         this.next = next;
     }
+    @Override
+    public boolean equals(Object obj){
+        if(this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        EntryTuple e = (EntryTuple) obj;
+        return item == e.item;
+    }
     //HELLOOOOo
 }

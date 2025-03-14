@@ -20,7 +20,7 @@ public class FPGrowth {
         // ParsedTable parsedTable = new ParsedTable(dataset);
         // parsedTable.printTable();
         ArrayList<int[]> frequentItemsets = new ArrayList<int[]>();
-        Tree tree = new Tree(1);
+        Tree tree = new Tree(2);
         tree.findSingletons(dataset); //Step 1: scan DB to find support of singletons
         tree.sortTable(); //Step 2: sort singletons
         // tree.printTable();
@@ -29,7 +29,7 @@ public class FPGrowth {
         // tree.printLinkedLists();
 
         try {
-            tree.projectSubtrees();
+            tree.projectSubtrees(tree.getTreeTable(), tree.getNodesInTree());
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

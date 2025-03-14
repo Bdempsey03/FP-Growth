@@ -14,7 +14,7 @@ public class ParsedTable {
 
     private void makeTable(String filename) {
         // Read the file and create the table
-        File file = new File("Data\\" + filename);
+        File file = new File("/Users/katelynkilburn/fpgrowth/FP-Growth/Data/" + filename);
         itemset = new ArrayList<Integer>();
         try {
             sc = new Scanner(file);

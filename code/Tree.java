@@ -27,7 +27,7 @@ public class Tree {
 
     public void findSingletons(String filename) {
         Scanner sc;
-        File file = new File("Data\\" + filename);
+        File file = new File("/Users/katelynkilburn/fpgrowth/FP-Growth/Data/" + filename);
         try {
             sc = new Scanner(file);
 
@@ -95,7 +95,7 @@ public class Tree {
         TreeNode currentNode = root; // item in root is NULL
 
         // Read the file and create the table
-        File file = new File("Data\\" + filename);
+        File file = new File("/Users/katelynkilburn/fpgrowth/FP-Growth/Data/" + filename);
         for(EntryTuple e : treeTable)
             frequentItemsets.add(new int[]{e.getItem()});
 
@@ -188,7 +188,7 @@ public class Tree {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        // System.out.println(this.toStringFreq(1));
+        //System.out.println(this.toStringFreq(1));
     }
 
     private void addPointer(TreeNode newNode, int item) {
@@ -205,9 +205,9 @@ public class Tree {
         ptr.setNext(newNode.getEntryTuple());
 
     }
-    public void projectSubtrees() {
+    public void projectSubtrees(ArrayList<EntryTuple> treeTable1, ArrayList<TreeNode> nodesInTree1) {
         for (int i = treeTable.size()-1; i > 0; i--) {
-            frequentItemsets.addAll(buildProjectedTree(treeTable, nodesInTree, treeTable.get(i).getItem()));
+            frequentItemsets.addAll(buildProjectedTree(treeTable1, nodesInTree1, treeTable1.get(i).getItem()));
         }
 
     }
@@ -220,6 +220,7 @@ public class Tree {
         TreeNode projectedRoot;
         projectedTree = new ArrayList<TreeNode>();
         projectedTable = new ArrayList<EntryTuple>();
+        ArrayList<EntryTuple> supportTable = new ArrayList<>();
 
 
         EntryTuple start = getSingletonWithValueOf(val); // This is the table entry that we are going to project on
@@ -255,9 +256,23 @@ public class Tree {
                 }
                 if (!currentNode.getParent().isRoot) {
                     projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(),
-                            sup), currentNode.getParent(),
-                            new ArrayList<TreeNode>()));
-                    projectedTable.add(projectedTree.get(projectedTree.size() - 1).getEntryTuple());
+                    sup), currentNode.getParent(), new ArrayList<TreeNode>()));
+                    EntryTuple e = projectedTree.get(projectedTree.size() - 1).getEntryTuple();
+                    projectedTable.add(e);
+                    // creating projected tree support table
+                    if(supportTable.contains(e)){
+                        for(EntryTuple x : supportTable){
+                             if(e.equals(x)){
+                                 x.setSupport(x.getSupport()+e.getSupport());
+                             }
+                        }
+                    }else{
+                        if(e.getItem() != -1){
+                            supportTable.add(new EntryTuple(e.getItem(), e.getSupport()));
+                        }
+                    }
+                    // done creating support table
+                   
                     currentNode = currentNode.getParent();
                 }else{
                     projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(),
@@ -270,27 +285,60 @@ public class Tree {
             start = start.getNext();//Move laterally
             if(start!=null)
                 currentNode = getNodeOfEntry(prevTree, start.getNext());
-        // if(start!=null)
-        //     currentNode = getNodeOfEntry(prevTree, start);
-            // System.out.println(start + "!!");
+    
         }
-        // System.out.println(projectedTable + ", "+val);
-        for(EntryTuple e : projectedTable){
+         System.out.println(projectedTable + ", "+val); // prints projected trees
+        
+
+        //TODO: Filter out all entries with sup < minsup
+    
+         System.out.println(supportTable);
+
+// filter out entries from projected table with sup < minsuo
+        for(EntryTuple e : supportTable){
+            if(e.getSupport() <  minsup){
+                for(EntryTuple x : projectedTable){
+                    if(e.equals(x)){
+                        projectedTable.remove(x);
+                    }
+                }
+            }
+        }
+        
+        // get frequent Itemsets
+        for(EntryTuple e : supportTable){
             if(e.getItem()!=-1){//skip root
-                // System.out.println(val+","+e.getItem() + "!");
+                //System.out.println(val+","+e.getItem() + "!");
                 frequentItemsets.add(new int[]{val, e.getItem()});
             }
         }
-        //TODO: Filter out all entries with sup < minsup
 
+        //update tree (adjusting children and pointers so that nodes below minsup removed)
+        for (TreeNode tn : projectedTree){
+            TreeNode parent = tn.getParent();
+            ArrayList<TreeNode> children = tn.getChildren();
+            if(!supportTable.contains(tn.getEntryTuple())){
+                if(parent != null){
+                    parent.setChildren(children);
+                    for (TreeNode c : children){
+                        c.setParent(parent);
+                    }
+                }
+            }
+        }
+
+        System.out.println(projectedTree);
         
 
-        //base 
-        // buildProjectedTree(projectedTable.get(projectedTable.size()-1).getItem()); //Recursion :(
-        // projectedTable.remove(projectedTable.size()-1);
-
-        
+        //base
+        //if(supportTable.size() > 1){
+         //   projectSubtrees(projectedTable, projectedTree);
+        // }
+            // buildProjectedTree();
+            // projectedTable.remove(projectedTable.size()-1);
+    
         return frequentItemsets;
+        
 
     }
 
@@ -402,6 +450,13 @@ public class Tree {
          */
     }
 
+    public ArrayList<TreeNode> getNodesInTree(){
+        return nodesInTree;
+    }
+
+    public ArrayList<EntryTuple> getTreeTable(){
+        return treeTable;
+    }
 
 
     public void printLinkedLists() {

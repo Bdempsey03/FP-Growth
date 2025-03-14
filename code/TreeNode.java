@@ -33,6 +33,9 @@ public class TreeNode {
     public void setParent(TreeNode parent){
         this.parent = parent;
     }
+    public void setChildren(ArrayList<TreeNode> children){
+        this.children = children;
+    }
     public String toString(){
         return entry.toString() + "<" + (parent==null?"null":parent.getEntryTuple().getItem())+">";
     }

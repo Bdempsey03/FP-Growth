@@ -17,8 +17,6 @@ public class FPGrowth {
     }
 
     public static void FPGrowthAlgo(String dataset){
-        // ParsedTable parsedTable = new ParsedTable(dataset);
-        // parsedTable.printTable();
         ArrayList<int[]> frequentItemsets = new ArrayList<int[]>();
         Tree tree = new Tree(2);
         tree.findSingletons(dataset); //Step 1: scan DB to find support of singletons
@@ -43,13 +41,14 @@ public class FPGrowth {
 
         
 // Need to iteratively call projectSubtrees() and getFrequentItemsets() until the tables associated 
-        for(int[] itemset : frequentItemsets){
-            System.out.print("[");
-            for(int item : itemset){
-                System.out.print( item + " ");
-            }
-            System.out.println("]");
-        }
+
+        // for(int[] itemset : frequentItemsets){
+        //     System.out.print("[");
+        //     for(int item : itemset){
+        //         System.out.print( item + " ");
+        //     }
+        //     System.out.println("]");
+        // }
 
         // Step 1: Scan DB DONE!
         

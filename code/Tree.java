@@ -16,7 +16,8 @@ public class Tree {
     private int minsup; //set by user
 
     private ArrayList<int[]> frequentItemsets = new ArrayList<int[]>(); //this is constantly added to
-
+    public Tree(){
+    }
     public Tree(int minsup) {
         //init variables
         root = new TreeNode(true);
@@ -236,9 +237,13 @@ public class Tree {
      * the x-projected trees for the singletons in the DB
      */
     public void projectSubtrees() {
+        ProjectedTree pt;
+        ArrayList<Integer> prefix = new ArrayList<Integer>();
         for (int i = treeTable.size()-1; i > 0; i--) {
-            frequentItemsets.addAll(buildProjectedTree(treeTable, nodesInTree, treeTable.get(i).getItem()));
-        }
+            prefix.add(treeTable.get(i).getItem());//This can grow with "recursion". At first it will have 1 item, but then subsequent calls
+            pt = new ProjectedTree(nodesInTree, treeTable, prefix);
+            prefix.clear();
+            }
 
     }
 

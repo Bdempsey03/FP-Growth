@@ -11,6 +11,7 @@ public class ProjectedTree {
     public ArrayList<EntryTuple> prevTable = new ArrayList<>();
     public ArrayList<TreeNode> prevTree;
     public ArrayList<Integer> projectVal;
+    public ArrayList<PatternTuple> frequentTuples = new ArrayList<PatternTuple>();
 
     public ProjectedTree(ArrayList<TreeNode> prevTree, ArrayList<EntryTuple> prevTable, ArrayList<Integer> projectVal) {
         // init variables
@@ -103,10 +104,24 @@ public class ProjectedTree {
         }
 
         for(EntryTuple e : treeTable){
-            frequent.add(new int[]{projectVal.get(0), e.getItem()});
+            if(e.getSupport() >= Tree.minsup){
+                int[] minedItem = {projectVal.get(0), e.getItem()};
+            frequent.add(minedItem);
             System.out.println("[" + projectVal.get(0) + ", " + e.getItem() + "] : " + e.getSupport()); //debugging
+            frequentTuples.add(new PatternTuple(minedItem,e.getSupport()));
+            }
+            
         }
         Tree.frequentItemsets.addAll(frequent);
+        Tree.frequentTuples.addAll(frequentTuples);
+
+        // for(PatternTuple p : Tree.frequentTuples){
+        //     int[] fpattern = p.getFreqPattern();
+        //     for(int i = 0; i < fpattern.length; i ++){
+        //         System.out.print(fpattern[i] + ", ");
+        //     }
+        // }
+        
         // buildProjectedTree(tree, treeTable, projectVal);
         tree.clear();
         treeTable.clear();

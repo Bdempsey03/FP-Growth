@@ -54,7 +54,7 @@ public class FPGrowth {
 
         frequentItemsets = tree.getFrequentItemsets();
         float endTime = System.nanoTime();
-        WriteToFile writer = new WriteToFile(dataset, frequentItemsets);
+        WriteToFile writer = new WriteToFile(dataset, tree.getFrequentTuples());
 
         
 // Need to iteratively call projectSubtrees() and getFrequentItemsets() until the tables associated 
@@ -73,14 +73,14 @@ public class FPGrowth {
 
         // Step 3: Construct FP-tree
         // Step 4: Mine FP-tree
-        System.out.println("Frequent Itemsets: ");
-        for(int[] itemset : frequentItemsets){
-            System.out.print("[");
-            for(int item : itemset){
-                System.out.print( item + " ");
-            }
-            System.out.println("]");
-        }
+        // System.out.println("Frequent Itemsets: ");
+        // for(int[] itemset : frequentItemsets){
+        //     System.out.print("[");
+        //     for(int item : itemset){
+        //         System.out.print( item + " ");
+        //     }
+        //     System.out.println("]");
+        // }
 
         // Print stopwatch time and minsupport info
         float ellapsedTime = (endTime - startTime)/1000000000;

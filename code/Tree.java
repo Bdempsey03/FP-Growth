@@ -13,9 +13,10 @@ public class Tree {
     private ArrayList<EntryTuple> treeTable; // This is the table associated with a tree
     private ArrayList<TreeNode> projectedTree; // Stores a projected tree's "bucket" of nodes
     private ArrayList<EntryTuple> projectedTable; // a proejcted tree's table
-    private int minsup; //set by user
-
+    
+    public static int minsup; //set by user
     public static ArrayList<int[]> frequentItemsets = new ArrayList<int[]>(); //this is constantly added to
+    public static ArrayList<PatternTuple> frequentTuples = new ArrayList<PatternTuple>();
     public Tree(){
     }
     public Tree(int minsup) {
@@ -93,6 +94,10 @@ public class Tree {
         while(treeTable.get(treeTable.size()-1).getSupport() < minsup){
             treeTable.remove(treeTable.size()-1);
         }
+        for(EntryTuple e : treeTable){
+            int[] x = {e.getItem()};
+            frequentTuples.add(new PatternTuple(x, e.getSupport()));
+        }
     }
 
 
@@ -121,7 +126,6 @@ public class Tree {
         File file = new File("Data\\" + filename);
         for(EntryTuple e : treeTable)
             frequentItemsets.add(new int[]{e.getItem()});
-
         try {
             sc = new Scanner(file);
             Transaction t;
@@ -207,6 +211,7 @@ public class Tree {
 
                 }
             }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -258,6 +263,7 @@ public class Tree {
         TreeNode projectedRoot;
         projectedTree = new ArrayList<TreeNode>();
         projectedTable = new ArrayList<EntryTuple>();
+        ArrayList<EntryTuple> supportTable = new ArrayList<>(); //This will allow us to filter by support
 
 
         EntryTuple start = getSingletonWithValueOf(val); // This is the table entry that we are going to project on
@@ -290,8 +296,10 @@ public class Tree {
                     projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(),
                             sup), currentNode.getParent(),
                             new ArrayList<TreeNode>()));
-                    projectedTable.add(projectedTree.get(projectedTree.size() - 1).getEntryTuple());
+                    EntryTuple e = projectedTree.get(projectedTree.size() - 1).getEntryTuple();
+                    projectedTable.add(e);
                     currentNode = currentNode.getParent();
+                   
                 }else{
                     projectedTree.add(new TreeNode(new EntryTuple(currentNode.getParent().getEntryTuple().getItem(),
                             0), currentNode.getParent(), //TODO: I think this should be the same root as above
@@ -450,5 +458,12 @@ public class Tree {
     public ArrayList<int[]> getFrequentItemsets(){
         return frequentItemsets;
     }
+
+    public ArrayList<PatternTuple> getFrequentTuples(){
+        return frequentTuples;
+    }
+
+
+
 
 }

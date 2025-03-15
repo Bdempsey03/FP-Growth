@@ -6,15 +6,15 @@ import java.util.ArrayList;
 public class WriteToFile{
     private FileWriter writer;
 
-    public WriteToFile(String dataset, ArrayList<int[]> frequentItemsets){
+    public WriteToFile(String dataset, ArrayList<PatternTuple> frequentTuples){
         try{
             writer = new FileWriter("MiningResults_"+dataset);
-            writer.write("FPs = "+frequentItemsets.size()+"\n");
-            for (int[] itemset : frequentItemsets){
-                for(int item : itemset){
-                    writer.write( item + " ");
+            writer.write("FPs = "+frequentTuples.size()+"\n");
+            for (PatternTuple pattern : frequentTuples){
+                for(int i = 0; i < pattern.getFreqPattern().length; i++){
+                    writer.write(pattern.getFreqPattern()[i]+", ");
                 }
-                writer.write(": \n");
+                writer.write(": "+pattern.getSupport()+"\n");
             }
             writer.close();
         }catch (IOException e) {

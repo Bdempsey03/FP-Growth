@@ -90,10 +90,12 @@ public class Tree {
      * Sorts list of singletons and removes ones with support less than the minsup
      */
     public void sortTable() {
+
         treeTable.sort(Comparator.comparingInt(EntryTuple::getSupport).reversed());
-        while(treeTable.get(treeTable.size()-1).getSupport() < minsup){
+        while (!treeTable.isEmpty() && treeTable.get(treeTable.size() - 1).getSupport() < minsup){
             treeTable.remove(treeTable.size()-1);
         }
+ 
         for(EntryTuple e : treeTable){
             int[] x = {e.getItem()};
             frequentTuples.add(new PatternTuple(x, e.getSupport()));
@@ -337,7 +339,7 @@ public class Tree {
             }
         }
 
-        System.out.println("Cannot find node with entry: " + e +"\n");
+        // System.out.println("Cannot find node with entry: " + e +"\n");
         // new Exception().printStackTrace();
         return null;
     }
@@ -347,7 +349,7 @@ public class Tree {
             if (e.getItem() == val)
                 return e;
         }
-        System.out.println("Didnt find singleton with value of "+val);
+        // System.out.println("Didnt find singleton with value of "+val);
         return null;
     }
 
@@ -425,18 +427,6 @@ public class Tree {
         }
 
         System.out.println("\n");
-
-
-
-        /*
-        System.out.println("\n New String Tree");
-        System.out.print(root.getStringNode());
-        for(int i = 0; i < root.getChildren().size(); i++){
-            System.out.print(root.getChildren().get(i).getStringNode());
-        }
-        System.out.println("\n");
-
-         */
     }
 
 

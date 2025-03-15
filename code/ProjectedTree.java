@@ -107,7 +107,7 @@ public class ProjectedTree {
             if(e.getSupport() >= Tree.minsup){
                 int[] minedItem = {projectVal.get(0), e.getItem()};
             frequent.add(minedItem);
-            System.out.println("[" + projectVal.get(0) + ", " + e.getItem() + "] : " + e.getSupport()); //debugging
+            // System.out.println("[" + projectVal.get(0) + ", " + e.getItem() + "] : " + e.getSupport()); //debugging
             frequentTuples.add(new PatternTuple(minedItem,e.getSupport()));
             }
             
@@ -144,8 +144,8 @@ public class ProjectedTree {
         // We need to do multiple passes since merging can create new merge
         // opportunities
         boolean changesMade;
-        System.out.println("Before merging branches:");
-        newPrintTree();
+        // System.out.println("Before merging branches:");
+        // newPrintTree();
         do {
             changesMade = false;
 
@@ -194,9 +194,9 @@ public class ProjectedTree {
             }
         } while (changesMade); // Keep going until no more changes are made du to cascading merges
 
-        System.out.println("After merging branches:");
-        newPrintTree();
-        System.out.println(projectVal + " projected tree ^");
+        // System.out.println("After merging branches:");
+        // newPrintTree();
+        // System.out.println(projectVal + " projected tree ^");
     }
 
     public ArrayList<PatternTuple> minePatterns(int projectVal){
@@ -220,7 +220,7 @@ public class ProjectedTree {
             }
         }
 
-        System.out.println("Cannot find node with entry: " + e + "\n");
+        // System.out.println("Cannot find node with entry: " + e + "\n");
         // new Exception().printStackTrace();
         return null;
     }
@@ -230,7 +230,7 @@ public class ProjectedTree {
             if (e.getItem() == val)
                 return e;
         }
-        System.out.println("Didnt find singleton with value of " + val);
+        // System.out.println("Didnt find singleton with value of " + val);
         return null;
     }
 

@@ -49,9 +49,5 @@ public class ParsedTable {
         return tableString;
     }
 
-    public static void main(String[] args) {
-        ParsedTable table = new ParsedTable();
-        table.makeTable("data.txt");
-        System.out.println(table);
-    }
+
 }

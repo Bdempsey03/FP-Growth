@@ -36,10 +36,7 @@ public class FPGrowth {
         Tree tree = new Tree(minsup);
         tree.findSingletons(dataset); //Step 1: scan DB to find support of singletons
         tree.sortTable(); //Step 2: sort singletons
-        // tree.printTable();
-        // tree.printTree();
         tree.makeGlobalTree(dataset); //Step 3: construct FP-tree
-        // tree.printLinkedLists();
 
         try {
             tree.projectSubtrees();
@@ -49,8 +46,6 @@ public class FPGrowth {
         }
 
         //Print all paths from leaves back to the root node.
-        tree.newPrintTree();
-        //tree.printTree();
 
         frequentItemsets = tree.getFrequentItemsets();
         float endTime = System.nanoTime();

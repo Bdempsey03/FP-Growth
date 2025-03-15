@@ -15,7 +15,7 @@ public class Tree {
     private ArrayList<EntryTuple> projectedTable; // a proejcted tree's table
     private int minsup; //set by user
 
-    private ArrayList<int[]> frequentItemsets = new ArrayList<int[]>(); //this is constantly added to
+    public static ArrayList<int[]> frequentItemsets = new ArrayList<int[]>(); //this is constantly added to
     public Tree(){
     }
     public Tree(int minsup) {

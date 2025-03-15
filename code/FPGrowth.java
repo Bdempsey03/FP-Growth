@@ -56,5 +56,13 @@ public class FPGrowth {
 
         // Step 3: Construct FP-tree
         // Step 4: Mine FP-tree
+        System.out.println("Frequent Itemsets: ");
+        for(int[] itemset : frequentItemsets){
+            System.out.print("[");
+            for(int item : itemset){
+                System.out.print( item + " ");
+            }
+            System.out.println("]");
+        }
     }
 }

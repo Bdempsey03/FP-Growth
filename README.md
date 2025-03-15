@@ -31,8 +31,11 @@ The data files should be in a subdirectory called "./Data"
 
 e.g. #1
 (Insert image)
+![image](/Screenshot%202025-03-14%20234028.jpg)
 
 e.g.#2
 (Insert image)
+![image](/Screenshot%202025-03-14%20234129.jpg)
+
 
 (add more examples...)
